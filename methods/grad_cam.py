@@ -30,7 +30,7 @@ class GradCAM(AttributionMethod):
         layer.register_backward_hook(func_b)
 
     def name(self):
-        return "GradCAM of {}".format(type(self.layer))
+        return "GradCAM of {}".format(type(self.layer).__name__)
 
     def pass_through(self, img):
         self.model.eval()
@@ -47,7 +47,7 @@ class GradCAM(AttributionMethod):
         # calc grads
         grad_eval_point = torch.FloatTensor(1, preds.size()[-1]).zero_()
         grad_eval_point[0][preds.argmax().item()] = 1.0
-        grad_eval_point = grad_eval_point.to(self.device)
+        grad_eval_point.to(self.device)
         preds.backward(gradient=grad_eval_point, retain_graph=True)
 
         # weight maps
@@ -60,7 +60,7 @@ class GradCAM(AttributionMethod):
         for i, w in enumerate(weights):
             gcam += w * maps[i, :, :]
 
-        # avg pool over layers
+        # avg pool over feature maps
         gcam = np.mean(gcam, axis=0)
         # relu
         gcam = np.maximum(gcam, 0)

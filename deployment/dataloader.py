@@ -40,10 +40,3 @@ class ImageNetDataset:
         else:
             img = pil_image
         return img, int(target)
-
-# setup data
-filename = '../data/imagenet_full/imagenet.hdf5'
-show_loader = ImageNetDataset(filename, train=False)
-dct = None
-with open('../data/imagenet_full/dict.txt', encoding='utf-8') as data_file:
-    dct = yaml.load(data_file.read())

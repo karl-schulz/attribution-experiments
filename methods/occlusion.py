@@ -4,31 +4,29 @@ from methods.base import *
 
 class Occlusion(AttributionMethod):
 
-    def __init__(self, model, size, stride=None, patch_color=0, patch_type="color"):
+    def __init__(self, model, size, stride=None, patch_value=0, patch_type="color"):
         if not stride:
             stride = size
         self.model = model
         self.size = size
         self.stride = stride
-        self.patch_color = patch_color
+        self.patch_value = patch_value
         self.patch_type = patch_type
 
     def occlude(self, img, x, y) -> np.array:
         patched = img
         if self.patch_type == "color":
-            patched[0, 0, x:x + self.size, y:y + self.size] = self.patch_color
+            patched[0, 0, x:x + self.size, y:y + self.size] = self.patch_value
         elif self.patch_type == "avg":
             img[0, 0, x:x + self.size, y:y + self.size] = np.average(img[0, 0, x:x + self.size, y:y + self.size])
         elif self.patch_type == "inv":
             img[0, 0, x:x + self.size, y:y + self.size] = 1 - img[0, 0, x:x + self.size, y:y + self.size]
         else:
-            raise ValueError("unknown patch type " + self.patch_type)
+            raise ValueError("unknown patch type {}".format(self.patch_type))
         return patched
 
     def get_map(self, img, target):
         self.model.eval()
-        x = 0
-        y = 0
         # img: 1xCxNxN
         w = img.shape[2]
         h = img.shape[3]

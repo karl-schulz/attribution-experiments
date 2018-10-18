@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
+import cv2
 import abc
 import torch
 
@@ -83,25 +84,47 @@ class Viz:
     def plot(self, hmap: np.array, img: np.array, fig):
         pass
 
-class Heatmap(Viz):
-
-    def prepare(self, hmap, vmin=0, vmax=255):
-        abs_max = max(abs(hmap.max()), abs(hmap.min()))
-        if abs_max:
-            hmap = 128 + hmap / abs_max * 127
-        hmap[0, 0] = vmin
-        hmap[0, 1] = vmax
+    @staticmethod
+    def rectify(hmap, signed, vmin=0.0, vmax=1.0):
+        if signed:
+            # signed - 0 is at bias, max is at absmax(hmap)
+            bias = (vmax - vmin)/2
+            scale = max(abs(hmap.max()), abs(hmap.min()))
+        else:
+            # unsigned - 0 is at min(hmap), max is at max(hmap)
+            bias = vmin
+            scale = hmap.max() - hmap.min()
+        if scale:  # dont divide by 0
+            hmap = (hmap / scale) * vmax + bias
+        else:
+            print("scale == 0!")
         return hmap
 
+    @staticmethod
+    def put_scale(hmap, vmin=0.0, vmax=1.0):
+        tile = int(np.round(hmap.shape[0] / 20))
+        hmap[0:tile, 0:tile] = vmax
+        hmap[0:tile, tile:2 * tile] = vmin
+        return hmap
+
+class Heatmap(Viz):
     def plot(self, hmap: np.array, img: np.array, fig):
         vmin = 0
         vmax = 255
-        hmap = self.prepare(hmap, vmin=vmin, vmax=vmin)
-        return fig.imshow(hmap, cmap=plt.cm.RdBu_r, vmin=vmin, vmax=vmax)
+        hmap = super().rectify(hmap, vmin=vmin, vmax=vmax, signed=True)
+        return fig.imshow(hmap.astype(int), cmap=plt.cm.RdBu_r, vmin=vmin, vmax=vmax)
 
 class Overlay(Viz):
-
     def plot(self, hmap: np.array, img: np.array, fig):
-        hmap = Heatmap().prepare(hmap)
-        img = 0.8 * hmap + 0.2 * img
-        return fig.imshow(hmap, cmap=plt.cm.RdBu_r, vmin=vmin, vmax=vmax)
+        assert len(hmap.shape) == 2, "hmap has not the right shape: {}".format(hmap.shape)
+        hmap = Heatmap().rectify(np.maximum(hmap.astype(float), 0), signed=False)
+        hmap = super().put_scale(hmap)
+        hmap_alpha = np.minimum(0.8, hmap*2)
+        hmap = cv2.applyColorMap(np.uint8(255 - 255*hmap), cv2.COLORMAP_JET)
+        hmap = np.float32(hmap) / 255.0
+        overlay = img.copy() # dont override img
+        # TODO das geht schöner
+        overlay[:,:,0] = img[:,:,0] * (1-hmap_alpha) + hmap[:,:,0] * hmap_alpha
+        overlay[:,:,1] = img[:,:,1] * (1-hmap_alpha) + hmap[:,:,1] * hmap_alpha
+        overlay[:,:,2] = img[:,:,2] * (1-hmap_alpha) + hmap[:,:,2] * hmap_alpha
+        return fig.imshow(overlay)
