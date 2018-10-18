@@ -1,4 +1,3 @@
-
 import PIL
 import io
 import yaml

@@ -1,13 +1,9 @@
-from attribution.methods import AttributionMethod
-from attribution.utils import *
-import torch.nn.functional as F
+
+from methods.base import *
 import torch
 import cv2
 import numpy as np
 
-from collections import OrderedDict
-import matplotlib.pyplot as plt
-from PIL import Image
 
 class GradCAM(AttributionMethod):
 
