@@ -1,14 +1,10 @@
 from __future__ import print_function
 
-from scipy.constants import ounce
-
-from methods.base import *
-import abc
-from tqdm import tqdm
-import torch
+import numpy as np
 import torch.nn.functional as F
 import torch.autograd
-import numpy as np
+from methods.base import *
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 from PIL import Image
