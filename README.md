@@ -12,6 +12,7 @@ Implementation and tests of several attribution methods:
 Files:
 * /methods: attribution methods, grouped by families
 * /deployment: data loader, visualizer etc.
-* ./notebooks: test scripts
+* notebooks: test scripts
 
-## Demo
+## Example
+![attribution methods](demo.png)
