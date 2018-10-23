@@ -14,5 +14,10 @@ Files:
 * /deployment: data loader, visualizer etc.
 * notebooks: test scripts
 
-## Example
-![attribution methods](demo.png)
+## Good Example
+"sturgeon"
+![attribution methods](ex_good.png)
+
+## Bad Example
+"basketball"
+![attribution methods](ex_bad.png)
