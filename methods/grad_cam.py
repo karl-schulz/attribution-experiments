@@ -7,7 +7,7 @@ import numpy as np
 
 class GradCAM(AttributionMethod):
 
-    def __init__(self, model: torch.nn.Module, device, layer: torch.nn.Module):
+    def __init__(self, model: torch.nn.Module, device, layer: torch.nn.Module, interpolation=cv2.INTER_NEAREST):
         """
         :param model: model containing the softmax-layer
         :param device: dev
@@ -16,6 +16,7 @@ class GradCAM(AttributionMethod):
         self.layer = layer
         self.model = model
         self.device = device
+        self.interpolation = interpolation
         self.fmaps = None
         self.grads = None
         self.probs = None
@@ -30,7 +31,7 @@ class GradCAM(AttributionMethod):
         layer.register_backward_hook(func_b)
 
     def name(self):
-        return "GradCAM of {}".format(type(self.layer).__name__)
+        return "GradCAM of {} {}".format(type(self.layer).__name__, tuple(self.fmaps.shape) if self.fmaps is not None else "[unknown]")
 
     def pass_through(self, img):
         self.model.eval()
@@ -64,7 +65,7 @@ class GradCAM(AttributionMethod):
         gcam = np.mean(gcam, axis=0)
         # relu
         gcam = np.maximum(gcam, 0)
-        gcam = cv2.resize(gcam, (224, 224))
+        gcam = cv2.resize(gcam, (224, 224), interpolation=self.interpolation)
 
         # rescale to [0,1]
         gcam -= gcam.min()
