@@ -1,11 +1,12 @@
 import torch.nn as nn
 import torch.nn.functional as F
-from mlproject.model import ClassificationModel
+from sacred import Experiment
+from mlproject import Model
 
-class LeNet(ClassificationModel):
+class LeNet(nn.Module):
 
-    def __init__(self, optimizer, loss, name):
-        super().__init__(self, optimizer, loss, name)
+    def __init__(self):
+        super().__init__()
         self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
         self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
         self.conv2_drop = nn.Dropout2d()
@@ -20,3 +21,7 @@ class LeNet(ClassificationModel):
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
+
+    @ex.capture
+    def boo(self, n_epochs):
+        print(n_epochs)

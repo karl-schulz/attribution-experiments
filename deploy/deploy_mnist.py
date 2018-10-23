@@ -1,4 +1,4 @@
-
+from torchvision.transforms import Compose, RandomHorizontalFlip, Normalize
 
 from deploy.dataloader import *
 from deploy.misc import *
@@ -8,37 +8,23 @@ from mlproject.data import *
 from models.lenet import *
 
 from mlproject import *
-from sacred import Experiment
+from mlproject.model import ProxyModel
 
 class MNISTProject(MLProject):
     @staticmethod
     def get_dataset_factory(config):
-        return MNISTDatasetFactory()
+        train_transform = Compose([
+            ToTensor(),
+            Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        test_transform = Compose([
+            ToTensor(),
+            Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        return MNISTDatasetFactory(train_transform=train_transform, test_transform=test_transform)
 
     @staticmethod
     def get_model(config):
         net = LeNet()
-        opt = torch.optim.Adam(net.parameters())
         loss = nn.CrossEntropyLoss()
-        return ClassificationModel(net, opt, loss=loss, name='test_mnist')
+        opt = torch.optim.Adam(net.parameters())
+        return ProxyModel("test_mnist_lenet", net, opt, loss, "gpu")
 
-
-def test_mnist(tmpdir):
-    ex = Experiment()
-    ex.add_config({
-        'batch_size': 5,
-        'n_epochs':  1,
-        'tensorboard_dir': None,
-        'device': 'cuda:0',
-        'model_dir': str(tmpdir.join('models')),
-    })
-
-    @ex.automain
-    def main(_run):
-        proj = MNISTProject.from_run(_run)
-        print(proj.model._device_args, proj.model._device_kwargs)
-        proj.test()
-        proj.train()
-        proj.test()
-
-    ex.run()

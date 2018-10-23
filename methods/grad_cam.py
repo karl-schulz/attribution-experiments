@@ -47,7 +47,7 @@ class GradCAM(AttributionMethod):
         # calc grads
         grad_eval_point = torch.FloatTensor(1, preds.size()[-1]).zero_()
         grad_eval_point[0][preds.argmax().item()] = 1.0
-        grad_eval_point.to(self.device)
+        grad_eval_point = grad_eval_point.to(self.device)
         preds.backward(gradient=grad_eval_point, retain_graph=True)
 
         # weight maps
