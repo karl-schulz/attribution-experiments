@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 
-class AllCNN96(nn.Module):
+class AllCNN96_HistoComp(nn.Module):
     """
     All-CNN-96 from https://arxiv.org/pdf/1611.01353.pdf
     (without softmax layer)
@@ -9,7 +9,7 @@ class AllCNN96(nn.Module):
     def __init__(self, config):
         super().__init__()
         # 96x96
-        self.conv1 = nn.Sequential(
+        self.conv1 = HistoComp(nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
@@ -21,7 +21,7 @@ class AllCNN96(nn.Module):
             nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=2),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-        )
+        ))
         # 48x48
         self.conv2 = nn.Sequential(
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
@@ -88,7 +88,7 @@ class AllCNN96(nn.Module):
 
     @staticmethod
     def family() -> str:
-        return "All-CNN-96"
+        return "All-CNN-96 HistoComp"
 
     def forward(self, x):
         x = self.conv1(x)
@@ -99,3 +99,18 @@ class AllCNN96(nn.Module):
         x = self.avg_pool(x)
         x = x.view(-1, 10)
         return x
+
+class HistoComp(nn.Module):
+
+    log: bool = False
+
+    def __init__(self, layer):
+        super().__init__()
+        self.layer = layer
+        self.outs = []
+
+    def forward(self, input):
+        out = self.layer.forward(input)
+        if self.log:
+            self.outs.append(out.detach())
+        return out

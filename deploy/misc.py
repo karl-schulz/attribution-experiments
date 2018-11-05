@@ -7,6 +7,11 @@ import cv2
 import abc
 import torch
 
+def average_featuremaps(fmaps: torch.Tensor) -> torch.Tensor:
+    hmap = fmaps.mean(axis=1)  # mean over channels
+    hmap = fmaps.mean(axis=0)  # mean over batch size
+    return hmap
+
 def find_layer(module, layer, module_name=None, strict=True):
     """
     search layer by name, id or object and return it, error otherwise
