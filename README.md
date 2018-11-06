@@ -23,6 +23,6 @@ Structure:
 "basketball"
 ![attribution methods](ex_bad.png)
 
-## Bad Example
-"basketball"
+## Information Dropout
+On cluttered MNIST
 ![information dropout](ex_id.png)
