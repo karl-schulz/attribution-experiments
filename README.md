@@ -17,12 +17,12 @@ Structure:
 
 ## Good Example
 "sturgeon"
-![attribution methods](ex_good.png)
+![attribution methods](demo/ex_good.png)
 
 ## Bad Example
 "basketball"
-![attribution methods](ex_bad.png)
+![attribution methods](demo/ex_bad.png)
 
 ## Information Dropout
 On cluttered MNIST
-![information dropout](ex_id.png)
+![information dropout](demo/ex_id.png)
