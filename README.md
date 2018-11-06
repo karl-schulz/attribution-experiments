@@ -8,7 +8,7 @@ Implementation and tests of several attribution methods:
 * Occlusion: https://arxiv.org/abs/1311.2901
 * Information Dropout: https://arxiv.org/abs/1611.01353 (repurpose as attribution method)
 
-... and trying new approaches e.g. by restraining information flow (informational dropout).
+... and maybe soon some others.
 
 Structure:
 * /methods: attribution methods, grouped by families
