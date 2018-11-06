@@ -1,5 +1,10 @@
-import torch.nn as nn
 import torch
+import torch.nn as nn
+from scipy.stats import norm
+
+from deploy.utils import to_np
+import numpy as np
+import matplotlib.pyplot as plt
 
 class AllCNN96_HistoComp(nn.Module):
     """
@@ -101,16 +106,59 @@ class AllCNN96_HistoComp(nn.Module):
         return x
 
 class HistoComp(nn.Module):
-
-    log: bool = False
-
+    """ TODO: resore log after passing thru """
     def __init__(self, layer):
         super().__init__()
         self.layer = layer
         self.outs = []
+        self.log = False
 
     def forward(self, input):
         out = self.layer.forward(input)
         if self.log:
-            self.outs.append(out.detach())
+            for i in to_np(out):
+                self.outs.append(i)
         return out
+
+    def get_hist(self, model, feed_data, inspect: torch.Tensor):
+        # reset first
+        self.outs = []
+        self.log = True
+        # implicitly pass through our layer
+        if isinstance(feed_data, tuple):
+            feed_data = feed_data[0]
+        if isinstance(feed_data, torch.Tensor):
+            feed_data = [feed_data]
+        for i in feed_data:
+            print("feeding ", i.shape)
+            model(i)
+        # analyse
+        print("out", self.outs[0].shape)
+        stack = np.stack(self.outs)
+        stack = stack[:,0]
+
+        #hists = np.zeros(stack.shape[1:2])
+        #print("hists", hists.shape)
+        #for i in stack:
+        #    stack
+
+        flat = stack.flatten()
+        nz = flat.nonzero()
+        flat_z = flat[nz]
+        flat_nz = flat[np.nonzero(flat)]
+        plt.figure(figsize=(20, 10))
+        plt.hist(flat.flatten(), bins=100, density=False)
+
+
+
+        mu, std = norm.fit(flat)
+        xmin, xmax = min(flat), max(flat)
+        plt_x = np.linspace(xmin, xmax, 100)
+        p = norm.pdf(plt_x, mu, std)
+        plt.plot(plt_x, p, 'k', linewidth=2)
+
+        plt.show()
+
+        print("stack", stack.shape)
+        print(stack)
+        print("stack")

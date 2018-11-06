@@ -108,7 +108,7 @@ class AttrProject(MLProject):
 
     def single_batch(self, idx: int=0) -> (torch.Tensor, torch.Tensor):
         """ dim: BxCxHxW """
-        # TODO unneccessary iterating, jump would be better (however, itertools itslice doesnt work)
+        # TODO unneccessary iterating, jump would be better (however, itertools itslice doesnt work somehow)
         for i, (dat, labels) in enumerate(self.dataset_factory.test_loader().__iter__()):
             if i == idx:
                 return dat.to(self.device), labels.to(self.device)

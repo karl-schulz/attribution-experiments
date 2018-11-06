@@ -20,7 +20,7 @@ class Noised(torch.nn.Module):
         print(acts.mean())
         print(acts.std())
 
-        f = plt.figure(figsize=(20, 10))
+        plt.figure(figsize=(20, 10))
         plt.hist(acts, bins=200, density=True)
 
         mu, std = norm.fit(acts)
@@ -29,7 +29,7 @@ class Noised(torch.nn.Module):
         p = norm.pdf(plt_x, mu, std)
         plt.plot(plt_x, p, 'k', linewidth=2)
 
-        f = plt.figure()
+        plt.show()
 
     def forward(self, x):
         x = self.original.forward(x)
