@@ -6,10 +6,11 @@ Implementation and tests of several attribution methods:
 * SmoothGrad: https://arxiv.org/abs/1706.03825
 * Grad-CAM: https://arxiv.org/abs/1610.02391
 * Occlusion: https://arxiv.org/abs/1311.2901
+* Information Dropout: https://arxiv.org/abs/1611.01353 (repurpose as attribution method)
 
 ... and trying new approaches e.g. by restraining information flow (informational dropout).
 
-Files:
+Structure:
 * /methods: attribution methods, grouped by families
 * /deployment: data loader, visualizer etc.
 * notebooks: test scripts
@@ -21,3 +22,7 @@ Files:
 ## Bad Example
 "basketball"
 ![attribution methods](ex_bad.png)
+
+## Bad Example
+"basketball"
+![information dropout](ex_id.png)
