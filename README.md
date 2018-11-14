@@ -8,12 +8,32 @@ Implementation and tests of several attribution methods:
 * Occlusion: https://arxiv.org/abs/1311.2901
 * Information Dropout: https://arxiv.org/abs/1611.01353 (repurpose as attribution method)
 
-... and maybe soon some others.
+... and maybe some others soon.
 
-Structure:
-* /methods: attribution methods, grouped by families
-* /deployment: data loader, visualizer etc.
-* notebooks: test scripts
+## Example
+```python
+import matplotlib.pyplot as plt
+from attribution.methods.grad_based import SmoothGrad
+from attribution.utils.viz import Heatmap
+
+# the model to be inspected
+model = ...  # type: torch.nn.Module
+
+# the image to analyse
+img = ...  # type: torch.Tensor
+
+# the target label to derive from, ground truth or any other
+target = ...  # type: torch.Tensor
+
+# get heatmap for this input image
+method = SmoothGrad(model, std=0.2)
+hmap = method.get_map(img=img, target=target)
+
+# visualize the result
+fig = plt.figure() # the figure to paint to, may be subfigure
+visualizer = Heatmap()
+visualizer.show(hmap=hmap, img=img, fig=fig)
+```
 
 ## Good Example
 "sturgeon"
